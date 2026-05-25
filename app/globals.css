@@ -24,3 +24,23 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* ─── AmeriSpeak animations ────────────────────────────────────────────── */
+
+@keyframes as-fade-slide-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes as-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.as-card-enter {
+  animation: as-fade-slide-in 220ms ease both;
+}
+
+.as-reveal-enter {
+  animation: as-fade-in 180ms ease both;
+}
