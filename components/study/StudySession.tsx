@@ -72,7 +72,7 @@ function CompletionScreen({ reviewedCount }: { reviewedCount: number }) {
         flex:           1,
       }}
     >
-      <span style={{ fontSize: "4rem", lineHeight: 1 }} aria-hidden="true">🇺🇸</span>
+      <span style={{ fontSize: "4rem", lineHeight: 1 }} aria-hidden="true">🎉</span>
 
       <div style={{ display: "flex", flexDirection: "column", gap: spacing[3] }}>
         <h2
