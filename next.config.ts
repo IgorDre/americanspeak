@@ -9,7 +9,9 @@ const withPWA = require("next-pwa") as (pwaConfig: {
 }) => (nextConfig: NextConfig) => NextConfig;
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Declare Turbopack config so Next.js 16 doesn't complain about the
+  // webpack config injected by next-pwa (Turbopack ignores it anyway).
+  turbopack: {},
 };
 
 export default withPWA({

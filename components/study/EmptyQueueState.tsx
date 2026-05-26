@@ -16,7 +16,7 @@ export function EmptyQueueState() {
       }}
     >
       <span style={{ fontSize: "4rem", lineHeight: 1 }} aria-hidden="true">
-        📭
+        🎉
       </span>
 
       <div style={{ display: "flex", flexDirection: "column", gap: spacing[3] }}>
@@ -29,7 +29,7 @@ export function EmptyQueueState() {
             fontFamily: typography.fontFamily.sans,
           }}
         >
-          Queue is empty
+          You&apos;re all caught up
         </h2>
         <p
           style={{
@@ -41,9 +41,7 @@ export function EmptyQueueState() {
             maxWidth:   "18rem",
           }}
         >
-          Browse phrases and tap{" "}
-          <strong style={{ color: colors.accent }}>+ Add to queue</strong> to
-          start studying.
+          Browse more phrases or come back later.
         </p>
       </div>
 
@@ -64,7 +62,7 @@ export function EmptyQueueState() {
           fontFamily:      typography.fontFamily.sans,
         }}
       >
-        Browse Phrases
+        Browse phrases
       </Link>
     </div>
   );

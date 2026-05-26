@@ -25,8 +25,13 @@ export function useStudyQueue(): UseStudyQueueReturn {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setQueue(getQueue());
-    setLoading(false);
+    try {
+      setQueue(getQueue());
+    } catch {
+      // storage unavailable — proceed with empty queue
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   const add = useCallback((phraseId: string): void => {

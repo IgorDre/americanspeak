@@ -5,3 +5,4 @@ export * from "./phrase";
 export * from "./home";
 export * from "./browse";
 export * from "./saved";
+export * from "./stats";
