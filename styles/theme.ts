@@ -82,6 +82,8 @@ export const typography = {
     bodyLg: "0.9375rem", // 15px — body/definition
     phrase: "1.375rem", // 22px — phrase term
     phraseLg: "1.5rem", // 24px — phrase term
+    phraseHero: "1.875rem", // 30px — immersive/study phrase display
+    phraseXl: "2.25rem", // 36px — cinematic hero phrase
   },
   fontWeight: {
     normal: "400",

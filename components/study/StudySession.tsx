@@ -5,7 +5,7 @@ import { useCallback, useMemo, useState } from "react";
 import { StudySessionCard } from "@/components/study/StudySessionCard";
 import { EmptyQueueState } from "@/components/study/EmptyQueueState";
 import { BottomNavigation } from "@/components/layout/BottomNavigation";
-import { ScreenContainer, BOTTOM_NAV_HEIGHT } from "@/components/layout/ScreenContainer";
+import { BOTTOM_NAV_HEIGHT } from "@/components/layout/ScreenContainer";
 import { MOCK_PHRASES } from "@/data";
 import { useStudyQueue } from "@/hooks/useStudyQueue";
 import { applyRating, type RatingKey } from "@/lib/scheduling";
@@ -13,42 +13,75 @@ import { incrementLearned, updateStreak } from "@/lib/storage";
 import { colors, radius, spacing, tapTargetMin, typography } from "@/styles/theme";
 import type { Phrase } from "@/types";
 
-// ─── Progress bar ──────────────────────────────────────────────────────────────
+// ─── Shared full-screen layout wrapper ───────────────────────────────────────
+
+function SessionShell({ children }: { children: React.ReactNode }) {
+  return (
+    <>
+      <div
+        style={{
+          height:          "100dvh",
+          display:         "flex",
+          flexDirection:   "column",
+          overflow:        "hidden",
+          backgroundColor: colors.bg,
+          paddingBottom:   `calc(${BOTTOM_NAV_HEIGHT} + env(safe-area-inset-bottom, 0px))`,
+          maxWidth:        "32rem",
+          marginInline:    "auto",
+          width:           "100%",
+        }}
+      >
+        {children}
+      </div>
+      <BottomNavigation />
+    </>
+  );
+}
+
+// ─── Progress bar ─────────────────────────────────────────────────────────────
 
 function ProgressBar({ done, total }: { done: number; total: number }) {
   const pct = total === 0 ? 0 : Math.round((done / total) * 100);
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: spacing[2] }}>
+    <div
+      style={{
+        display:        "flex",
+        alignItems:     "center",
+        gap:            spacing[3],
+        paddingInline:  spacing[4],
+        paddingBlock:   spacing[3],
+        flexShrink:     0,
+      }}
+    >
       <div
         style={{
-          display: "flex",
-          justifyContent: "space-between",
-          fontSize: typography.fontSize.label,
-          color: colors.muted,
-          fontFamily: typography.fontFamily.sans,
-        }}
-      >
-        <span>Session</span>
-        <span>{done} / {total}</span>
-      </div>
-      <div
-        style={{
-          height: "4px",
-          borderRadius: radius.pill,
+          flex:            1,
+          height:          "3px",
+          borderRadius:    "999px",
           backgroundColor: colors.elevated,
-          overflow: "hidden",
+          overflow:        "hidden",
         }}
       >
         <div
           style={{
-            height: "100%",
-            width: `${pct}%`,
-            borderRadius: radius.pill,
+            height:          "100%",
+            width:           `${pct}%`,
+            borderRadius:    "999px",
             backgroundColor: colors.accent,
-            transition: "width 300ms ease",
+            transition:      "width 350ms ease",
           }}
         />
       </div>
+      <span
+        style={{
+          fontSize:   typography.fontSize.label,
+          color:      colors.muted,
+          fontFamily: typography.fontFamily.sans,
+          flexShrink: 0,
+        }}
+      >
+        {done} / {total}
+      </span>
     </div>
   );
 }
@@ -62,6 +95,7 @@ function CompletionScreen({ reviewedCount }: { reviewedCount: number }) {
     <div
       className="as-card-enter"
       style={{
+        flex:           1,
         display:        "flex",
         flexDirection:  "column",
         alignItems:     "center",
@@ -69,7 +103,6 @@ function CompletionScreen({ reviewedCount }: { reviewedCount: number }) {
         textAlign:      "center",
         gap:            spacing[6],
         padding:        spacing[8],
-        flex:           1,
       }}
     >
       <span style={{ fontSize: "4rem", lineHeight: 1 }} aria-hidden="true">🎉</span>
@@ -78,7 +111,7 @@ function CompletionScreen({ reviewedCount }: { reviewedCount: number }) {
         <h2
           style={{
             margin:     0,
-            fontSize:   typography.fontSize.phraseLg,
+            fontSize:   typography.fontSize.phraseHero,
             fontWeight: typography.fontWeight.semibold,
             color:      colors.text,
             fontFamily: typography.fontFamily.sans,
@@ -105,7 +138,7 @@ function CompletionScreen({ reviewedCount }: { reviewedCount: number }) {
           display:         "inline-flex",
           alignItems:      "center",
           justifyContent:  "center",
-          minHeight:       tapTargetMin,
+          minHeight:       `${tapTargetMin}px`,
           paddingInline:   spacing[8],
           borderRadius:    radius.pill,
           backgroundColor: colors.accent,
@@ -127,14 +160,11 @@ function CompletionScreen({ reviewedCount }: { reviewedCount: number }) {
 export function StudySession() {
   const { queue, loading, update } = useStudyQueue();
 
-  // Capture the session phrase list once after the queue loads.
-  // We use a stable list so adding/removing phrases mid-session doesn't jump.
   const sessionPhrases = useMemo<Phrase[]>(() => {
     if (loading) return [];
     return Object.keys(queue)
       .map((id) => MOCK_PHRASES.find((p) => p.id === id))
       .filter((p): p is Phrase => p !== undefined);
-    // intentionally run once when loading flips to false
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading]);
 
@@ -174,53 +204,44 @@ export function StudySession() {
   // ── Loading ──────────────────────────────────────────────────────────────
   if (loading) {
     return (
-      <>
-        <main style={{ flex: 1, backgroundColor: colors.bg }}>
-          <ScreenContainer withBottomNav>
-            <div
-              style={{
-                display:        "flex",
-                alignItems:     "center",
-                justifyContent: "center",
-                minHeight:      "50vh",
-              }}
-            >
-              <span style={{ color: colors.muted, fontFamily: typography.fontFamily.sans, fontSize: typography.fontSize.body }}>
-                Loading…
-              </span>
-            </div>
-          </ScreenContainer>
-        </main>
-        <BottomNavigation />
-      </>
+      <SessionShell>
+        <div
+          style={{
+            flex:           1,
+            display:        "flex",
+            alignItems:     "center",
+            justifyContent: "center",
+          }}
+        >
+          <span
+            style={{
+              color:      colors.muted,
+              fontFamily: typography.fontFamily.sans,
+              fontSize:   typography.fontSize.body,
+            }}
+          >
+            Loading…
+          </span>
+        </div>
+      </SessionShell>
     );
   }
 
   // ── Empty queue ───────────────────────────────────────────────────────────
   if (sessionPhrases.length === 0) {
     return (
-      <>
-        <main style={{ flex: 1, backgroundColor: colors.bg, display: "flex", flexDirection: "column" }}>
-          <ScreenContainer withBottomNav style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-            <EmptyQueueState />
-          </ScreenContainer>
-        </main>
-        <BottomNavigation />
-      </>
+      <SessionShell>
+        <EmptyQueueState />
+      </SessionShell>
     );
   }
 
   // ── Completion ────────────────────────────────────────────────────────────
   if (done) {
     return (
-      <>
-        <main style={{ flex: 1, backgroundColor: colors.bg, display: "flex", flexDirection: "column" }}>
-          <ScreenContainer withBottomNav style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-            <CompletionScreen reviewedCount={reviewedCount} />
-          </ScreenContainer>
-        </main>
-        <BottomNavigation />
-      </>
+      <SessionShell>
+        <CompletionScreen reviewedCount={reviewedCount} />
+      </SessionShell>
     );
   }
 
@@ -228,29 +249,28 @@ export function StudySession() {
   const phrase = sessionPhrases[index];
 
   return (
-    <>
-      <main
+    <SessionShell>
+      {/* Compact progress bar */}
+      <ProgressBar done={reviewedCount} total={sessionPhrases.length} />
+
+      {/* Full-height card with safe margins */}
+      <div
         style={{
-          flex:            1,
-          backgroundColor: colors.bg,
-          overflowY:       "auto",
-          paddingBottom:   `calc(${BOTTOM_NAV_HEIGHT} + env(safe-area-inset-bottom, 0px))`,
+          flex:          1,
+          display:       "flex",
+          flexDirection: "column",
+          paddingInline: spacing[4],
+          paddingBottom: spacing[3],
+          overflow:      "hidden",
         }}
       >
-        <ScreenContainer>
-          <div style={{ display: "flex", flexDirection: "column", gap: spacing[4] }}>
-            <ProgressBar done={reviewedCount} total={sessionPhrases.length} />
-
-            {/* key forces unmount+remount → triggers .as-card-enter animation */}
-            <StudySessionCard
-              key={phrase.id}
-              phrase={phrase}
-              onRate={handleRate}
-            />
-          </div>
-        </ScreenContainer>
-      </main>
-      <BottomNavigation />
-    </>
+        {/* key forces unmount+remount → triggers .as-card-enter animation */}
+        <StudySessionCard
+          key={phrase.id}
+          phrase={phrase}
+          onRate={handleRate}
+        />
+      </div>
+    </SessionShell>
   );
 }

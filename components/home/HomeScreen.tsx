@@ -1,16 +1,16 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useState } from "react";
 import { MOCK_PHRASES } from "@/data";
 import { useSavedPhrases } from "@/hooks/useSavedPhrases";
 import { useStats } from "@/hooks/useStats";
 import { useStudyQueue } from "@/hooks/useStudyQueue";
-import { BottomNavigation, ScreenContainer } from "@/components/layout";
+import { BottomNavigation } from "@/components/layout";
+import { BOTTOM_NAV_HEIGHT } from "@/components/layout/ScreenContainer";
 import { HomeHeader } from "@/components/home/HomeHeader";
-import { MiniStatsRow } from "@/components/home/MiniStatsRow";
 import { PhraseOfDaySection } from "@/components/home/PhraseOfDaySection";
-import { QuickActionsRow } from "@/components/home/QuickActionsRow";
-import { colors, spacing } from "@/styles/theme";
+import { colors, radius, spacing, tapTargetMin, typography } from "@/styles/theme";
 import type { Phrase } from "@/types";
 
 function pickRandom(current: Phrase): Phrase {
@@ -22,8 +22,8 @@ function pickRandom(current: Phrase): Phrase {
 export function HomeScreen() {
   const [phrase, setPhrase] = useState<Phrase>(MOCK_PHRASES[0]);
 
-  const saved = useSavedPhrases();
-  const queue = useStudyQueue();
+  const saved  = useSavedPhrases();
+  const queue  = useStudyQueue();
   const { stats, refresh: refreshStats } = useStats();
 
   const handleToggleSave = useCallback(
@@ -50,42 +50,76 @@ export function HomeScreen() {
     [queue, refreshStats],
   );
 
-  const handleRandomPhrase = useCallback(() => {
+  // Keep random phrase accessible via a subtle tap on the phrase card label area
+  const _handleRandomPhrase = useCallback(() => {
     setPhrase((current) => pickRandom(current));
   }, []);
 
   return (
     <>
-      <main style={{ flex: 1, backgroundColor: colors.bg }}>
-        <ScreenContainer withBottomNav>
-          <div
+      {/* Full-screen no-scroll layout */}
+      <div
+        style={{
+          height:          "100dvh",
+          display:         "flex",
+          flexDirection:   "column",
+          overflow:        "hidden",
+          backgroundColor: colors.bg,
+          paddingBottom:   `calc(${BOTTOM_NAV_HEIGHT} + env(safe-area-inset-bottom, 0px))`,
+          maxWidth:        "32rem",
+          marginInline:    "auto",
+          width:           "100%",
+        }}
+      >
+        {/* Compact header */}
+        <HomeHeader streakDays={stats.streak} />
+
+        {/* Immersive phrase hero — fills remaining space */}
+        <PhraseOfDaySection
+          phrase={phrase}
+          isQueued={queue.inQueue(phrase.id)}
+          isSaved={saved.isSaved(phrase.id)}
+          onAddToQueue={handleAddToQueue}
+          onRemoveFromQueue={handleRemoveFromQueue}
+          onToggleSave={handleToggleSave}
+        />
+
+        {/* Single primary CTA */}
+        <div
+          style={{
+            paddingInline: spacing[4],
+            paddingTop:    spacing[3],
+            paddingBottom: spacing[3],
+            flexShrink:    0,
+          }}
+        >
+          <Link
+            href="/study"
             style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: spacing[6],
+              display:         "flex",
+              alignItems:      "center",
+              justifyContent:  "center",
+              gap:             spacing[2],
+              minHeight:       `${tapTargetMin}px`,
+              width:           "100%",
+              borderRadius:    radius.pill,
+              backgroundColor: colors.accent,
+              color:           colors.text,
+              textDecoration:  "none",
+              fontSize:        typography.fontSize.bodyLg,
+              fontWeight:      typography.fontWeight.semibold,
+              fontFamily:      typography.fontFamily.sans,
+              letterSpacing:   "0.01em",
+              transition:      "opacity 150ms ease",
             }}
           >
-            <HomeHeader streakDays={stats.streak} />
+            <span aria-hidden="true">▶</span>
+            <span>Start Studying</span>
+          </Link>
+        </div>
+      </div>
 
-            <PhraseOfDaySection
-              phrase={phrase}
-              isQueued={queue.inQueue(phrase.id)}
-              isSaved={saved.isSaved(phrase.id)}
-              onAddToQueue={handleAddToQueue}
-              onRemoveFromQueue={handleRemoveFromQueue}
-              onToggleSave={handleToggleSave}
-            />
-
-            <QuickActionsRow onRandomPhrase={handleRandomPhrase} />
-
-            <MiniStatsRow
-              phrasesLearned={stats.learned}
-              streakDays={stats.streak}
-              queueCount={stats.queueSize}
-            />
-          </div>
-        </ScreenContainer>
-      </main>
+      {/* Fixed bottom navigation */}
       <BottomNavigation />
     </>
   );
