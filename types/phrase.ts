@@ -30,4 +30,8 @@ export interface Phrase {
   category?: Category;
   relationsFrom?: PhraseRelation[];
   relationsTo?: PhraseRelation[];
+  emotionalTone?: string;
+  socialContext?: string;
+  visualScene?: string;
+  naturalSpeedNotes?: string;
 }
