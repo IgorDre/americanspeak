@@ -13,11 +13,12 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { href: "/",       label: "Home",   icon: "🏠" },
-  { href: "/study",  label: "Study",  icon: "▶",  primary: true },
-  { href: "/browse", label: "Browse", icon: "🔍" },
-  { href: "/saved",  label: "Saved",  icon: "♡"  },
-  { href: "/stats",  label: "Stats",  icon: "📊" },
+  { href: "/",        label: "Home",    icon: "🏠" },
+  { href: "/study",   label: "Study",   icon: "▶",  primary: true },
+  { href: "/browse",  label: "Browse",  icon: "🔍" },
+  { href: "/saved",   label: "Saved",   icon: "♡"  },
+  { href: "/stats",   label: "Stats",   icon: "📊" },
+  { href: "/profile", label: "Profile", icon: "👤" },
 ];
 
 function isActive(pathname: string, href: string): boolean {
@@ -46,7 +47,7 @@ export function BottomNavigation() {
       <ul
         style={{
           display:             "grid",
-          gridTemplateColumns: "repeat(5, 1fr)",
+          gridTemplateColumns: "repeat(6, 1fr)",
           height:              "100%",
           margin:              0,
           padding:             `0 ${spacing[1]}`,

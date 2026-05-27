@@ -9,3 +9,4 @@ export {
   type UseStudyQueueReturn,
 } from "./useStudyQueue";
 export { useStats, type UseStatsReturn } from "./useStats";
+export { useSettings, type UseSettingsReturn } from "./useSettings";
