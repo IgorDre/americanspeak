@@ -1,5 +1,5 @@
-import { HomeScreen } from "@/components/home/HomeScreen";
+import { ReelFeed } from "@/components/reel";
 
 export default function Home() {
-  return <HomeScreen />;
+  return <ReelFeed />;
 }

@@ -76,3 +76,96 @@ button,
   animation: as-fade-in 180ms ease both;
   will-change: opacity;
 }
+
+/* ─── Reel Home Feed — cinematic animations ────────────────────────────── */
+
+/* The single vertical interaction surface. touch-action lives in a CSS class
+   (not inline) because some mobile browsers resolve touch handling before
+   inline styles are applied, which lets the page swallow the gesture. */
+.reel-container {
+  touch-action: none;
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: auto; /* disable iOS momentum scroll */
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+@keyframes reel-enter-up {
+  from { opacity: 0; transform: translateY(7%); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes reel-enter-down {
+  from { opacity: 0; transform: translateY(-7%); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes reel-content-rise {
+  from { opacity: 0; transform: translateY(22px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes reel-bg-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes reel-ring-pulse {
+  0%, 100% { transform: translateX(-20%) scale(1);    opacity: 0.55; }
+  50%      { transform: translateX(-20%) scale(1.03); opacity: 0.9; }
+}
+
+@keyframes reel-glow-pulse {
+  0%, 100% { transform: translateX(-25%) scale(1);    opacity: 0.45; }
+  50%      { transform: translateX(-25%) scale(1.06); opacity: 0.8; }
+}
+
+@keyframes reel-wave {
+  0%, 100% { transform: scaleY(0.45); opacity: 0.7; }
+  50%      { transform: scaleY(1);    opacity: 1; }
+}
+
+@keyframes reel-dot-pulse {
+  0%, 100% { opacity: 1;   box-shadow: 0 0 0 0 var(--reel-accent-glow); }
+  50%      { opacity: 0.5; box-shadow: 0 0 0 4px transparent; }
+}
+
+@keyframes reel-peek-bounce {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-3px); }
+}
+
+.reel-card-enter-up   { animation: reel-enter-up   380ms cubic-bezier(0.25, 0.46, 0.45, 0.94) both; }
+.reel-card-enter-down { animation: reel-enter-down 380ms cubic-bezier(0.25, 0.46, 0.45, 0.94) both; }
+.reel-content-rise    { animation: reel-content-rise 480ms cubic-bezier(0.25, 0.46, 0.45, 0.94) both; }
+.reel-bg-fade         { animation: reel-bg-fade 700ms ease both; }
+
+/* Tap feedback — crisp, immediate press response on touch + pointer */
+.reel-tappable {
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 120ms ease, box-shadow 180ms ease, background 180ms ease, border-color 180ms ease;
+}
+.reel-tappable:active {
+  transform: scale(0.95);
+}
+
+/* Desktop / large screens — keep a centered, immersive mobile column.
+   The empty space around it is intentional; delineate the column subtly. */
+@media (min-width: 540px) {
+  .reel-shell {
+    border-inline: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: 0 0 140px rgba(0, 0, 0, 0.75);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reel-card-enter-up,
+  .reel-card-enter-down,
+  .reel-content-rise,
+  .reel-bg-fade {
+    animation: none !important;
+  }
+  .reel-tappable:active {
+    transform: none;
+  }
+}

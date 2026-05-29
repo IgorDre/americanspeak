@@ -7,3 +7,4 @@ export * from "./browse";
 export * from "./saved";
 export * from "./stats";
 export * from "./profile";
+export * from "./reel";

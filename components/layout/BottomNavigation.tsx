@@ -1,153 +1,178 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { colors, radius, spacing, typography } from "@/styles/theme";
-import { BOTTOM_NAV_HEIGHT } from "./ScreenContainer";
+import { usePathname, useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 
-interface NavItem {
-  href: string;
-  label: string;
-  icon: string;
-  primary?: boolean;
-}
+const ACCENT = "#f5a623";
+const INACTIVE_ICON = "rgba(255,255,255,0.38)";
+const INACTIVE_LABEL = "rgba(255,255,255,0.35)";
 
-const NAV_ITEMS: NavItem[] = [
-  { href: "/",        label: "Home",    icon: "🏠" },
-  { href: "/study",   label: "Study",   icon: "▶",  primary: true },
-  { href: "/browse",  label: "Browse",  icon: "🔍" },
-  { href: "/saved",   label: "Saved",   icon: "♡"  },
-  { href: "/stats",   label: "Stats",   icon: "📊" },
-  { href: "/profile", label: "Profile", icon: "👤" },
+const tabs = [
+  {
+    id: "discover",
+    label: "Discover",
+    path: "/",
+    Icon: ({ active }: { active: boolean }) => (
+      <svg
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill={active ? ACCENT : "none"}
+        stroke={active ? ACCENT : INACTIVE_ICON}
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+        <polyline points="9 22 9 12 15 12 15 22" />
+      </svg>
+    ),
+  },
+  {
+    id: "browse",
+    label: "Browse",
+    path: "/browse",
+    Icon: ({ active }: { active: boolean }) => (
+      <svg
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={active ? ACCENT : INACTIVE_ICON}
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      >
+        <rect x="3" y="3" width="7" height="7" rx="1" />
+        <rect x="14" y="3" width="7" height="7" rx="1" />
+        <rect x="3" y="14" width="7" height="7" rx="1" />
+        <rect x="14" y="14" width="7" height="7" rx="1" />
+      </svg>
+    ),
+  },
+  {
+    id: "practice",
+    label: "Practice",
+    path: "/practice",
+    Icon: ({ active }: { active: boolean }) => (
+      <svg
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill={active ? ACCENT : "none"}
+        stroke={active ? ACCENT : INACTIVE_ICON}
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+      </svg>
+    ),
+  },
+  {
+    id: "saved",
+    label: "Saved",
+    path: "/saved",
+    Icon: ({ active }: { active: boolean }) => (
+      <svg
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill={active ? ACCENT : "none"}
+        stroke={active ? ACCENT : INACTIVE_ICON}
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z" />
+      </svg>
+    ),
+  },
+  {
+    id: "profile",
+    label: "Profile",
+    path: "/profile",
+    Icon: ({ active }: { active: boolean }) => (
+      <svg
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={active ? ACCENT : INACTIVE_ICON}
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      >
+        <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+        <circle cx="12" cy="7" r="4" />
+      </svg>
+    ),
+  },
 ];
-
-function isActive(pathname: string, href: string): boolean {
-  if (href === "/") return pathname === "/";
-  return pathname === href || pathname.startsWith(`${href}/`);
-}
 
 export function BottomNavigation() {
   const pathname = usePathname();
+  const router = useRouter();
 
   return (
     <nav
       aria-label="Main navigation"
       style={{
-        position:        "fixed",
-        left:            0,
-        right:           0,
-        bottom:          0,
-        zIndex:          50,
-        height:          BOTTOM_NAV_HEIGHT,
-        paddingBottom:   "env(safe-area-inset-bottom, 0px)",
-        backgroundColor: colors.surface,
-        borderTop:       `1px solid ${colors.border}`,
+        position: "fixed",
+        left: 0,
+        right: 0,
+        bottom: 0,
+        zIndex: 50,
+        display: "flex",
+        justifyContent: "space-around",
+        alignItems: "center",
+        padding: `10px 4px calc(env(safe-area-inset-bottom) + 6px)`,
+        background: "rgba(8,8,8,0.94)",
+        backdropFilter: "blur(24px)",
+        WebkitBackdropFilter: "blur(24px)",
+        borderTop: "1px solid rgba(255,255,255,0.07)",
+        flexShrink: 0,
       }}
     >
-      <ul
-        style={{
-          display:             "grid",
-          gridTemplateColumns: "repeat(6, 1fr)",
-          height:              "100%",
-          margin:              0,
-          padding:             `0 ${spacing[1]}`,
-          listStyle:           "none",
-          alignItems:          "stretch",
-        }}
-      >
-        {NAV_ITEMS.map((item) => {
-          const active = isActive(pathname, item.href);
-
-          if (item.primary) {
-            return (
-              <li
-                key={item.href}
-                style={{
-                  display:        "flex",
-                  alignItems:     "center",
-                  justifyContent: "center",
-                  padding:        `${spacing[2]} ${spacing[1]}`,
-                }}
-              >
-                <Link
-                  href={item.href}
-                  aria-current={active ? "page" : undefined}
-                  style={{
-                    display:         "flex",
-                    flexDirection:   "column",
-                    alignItems:      "center",
-                    justifyContent:  "center",
-                    gap:             spacing[1],
-                    minWidth:        "48px",
-                    minHeight:       "48px",
-                    paddingInline:   spacing[3],
-                    paddingBlock:    spacing[2],
-                    borderRadius:    radius.pill,
-                    backgroundColor: active ? colors.accent : colors.elevated,
-                    border:          `1px solid ${active ? colors.accent : colors.border}`,
-                    textDecoration:  "none",
-                    color:           active ? colors.text : colors.muted,
-                    fontSize:        typography.fontSize.label,
-                    fontWeight:      typography.fontWeight.semibold,
-                    fontFamily:      typography.fontFamily.sans,
-                    transition:      "background-color 150ms ease, color 150ms ease",
-                  }}
-                >
-                  <span
-                    aria-hidden="true"
-                    style={{
-                      fontSize: typography.fontSize.bodyLg,
-                      lineHeight: 1,
-                    }}
-                  >
-                    {item.icon}
-                  </span>
-                  <span>{item.label}</span>
-                </Link>
-              </li>
-            );
-          }
-
-          return (
-            <li
-              key={item.href}
-              style={{ display: "flex" }}
+      {tabs.map((tab) => {
+        const active =
+          tab.path === "/"
+            ? pathname === "/" || pathname === ""
+            : pathname.startsWith(tab.path);
+        return (
+          <motion.button
+            key={tab.id}
+            onPointerDown={(e) => e.stopPropagation()}
+            onPointerUp={(e) => {
+              e.stopPropagation();
+              router.push(tab.path);
+            }}
+            aria-current={active ? "page" : undefined}
+            whileTap={{ scale: 0.85 }}
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: "4px",
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              padding: "4px 10px",
+              touchAction: "manipulation",
+            }}
+          >
+            <tab.Icon active={active} />
+            <span
+              style={{
+                fontSize: "10px",
+                fontWeight: active ? 700 : 400,
+                color: active ? ACCENT : INACTIVE_LABEL,
+                letterSpacing: "0.02em",
+              }}
             >
-              <Link
-                href={item.href}
-                aria-current={active ? "page" : undefined}
-                style={{
-                  flex:           1,
-                  display:        "flex",
-                  flexDirection:  "column",
-                  alignItems:     "center",
-                  justifyContent: "center",
-                  gap:            spacing[1],
-                  minHeight:      "48px",
-                  textDecoration: "none",
-                  color:          active ? colors.accent : colors.muted,
-                  fontSize:       typography.fontSize.label,
-                  fontWeight:     active ? typography.fontWeight.semibold : typography.fontWeight.normal,
-                  fontFamily:     typography.fontFamily.sans,
-                  opacity:        active ? 1 : 0.75,
-                  transition:     "color 150ms ease, opacity 150ms ease",
-                }}
-              >
-                <span
-                  aria-hidden="true"
-                  style={{
-                    fontSize: typography.fontSize.bodyLg,
-                    lineHeight: 1,
-                  }}
-                >
-                  {item.icon}
-                </span>
-                <span>{item.label}</span>
-              </Link>
-            </li>
-          );
-        })}
-      </ul>
+              {tab.label}
+            </span>
+          </motion.button>
+        );
+      })}
     </nav>
   );
 }
