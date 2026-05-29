@@ -23,10 +23,10 @@ export function PeekNextStrip({ nextPhrase, onSwipeUp }: PeekNextStripProps) {
         width: "100%",
         gap: 12,
         padding: "14px 20px",
-        background: "var(--reel-glass-bg)",
+        background: "rgba(255,255,255,0.03)",
         backdropFilter: "blur(20px)",
         WebkitBackdropFilter: "blur(20px)",
-        borderTop: "1px solid var(--reel-glass-border)",
+        borderTop: "1px solid rgba(255,255,255,0.06)",
         borderLeft: "none",
         borderRight: "none",
         borderBottom: "none",
@@ -39,10 +39,10 @@ export function PeekNextStrip({ nextPhrase, onSwipeUp }: PeekNextStripProps) {
         <span
           style={{
             fontSize: 10,
-            fontWeight: 700,
-            letterSpacing: "0.16em",
+            fontWeight: 600,
+            letterSpacing: "0.1em",
             textTransform: "uppercase",
-            color: "var(--reel-text-muted)",
+            color: "rgba(255,255,255,0.28)",
           }}
         >
           Swipe Up · Next Phrase
@@ -51,7 +51,7 @@ export function PeekNextStrip({ nextPhrase, onSwipeUp }: PeekNextStripProps) {
           style={{
             fontSize: 14,
             fontWeight: 600,
-            color: "var(--reel-text)",
+            color: "rgba(255,255,255,0.65)",
             overflow: "hidden",
             textOverflow: "ellipsis",
             whiteSpace: "nowrap",

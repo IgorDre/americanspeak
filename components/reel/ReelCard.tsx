@@ -2,6 +2,7 @@
 
 import { memo, useCallback } from "react";
 import type { ReelPhrase } from "@/lib/reelPhrase";
+import type { PhraseState } from "@/lib/usePhraseStates";
 import { ActionRail } from "./ActionRail";
 import { BackgroundLayer } from "./BackgroundLayer";
 import { FloatingRings } from "./FloatingRings";
@@ -12,22 +13,28 @@ import { TagPills } from "./TagPills";
 
 interface ReelCardProps {
   phrase: ReelPhrase;
-  isSaved: boolean;
-  onToggleSave: () => void;
+  phraseState: PhraseState;
   isPlaying: boolean;
   isSlow: boolean;
   onPlayNative: () => void;
   onPlaySlow: () => void;
+  onHide: () => void;
+  onReport: () => void;
+  onCopy: () => void;
+  onViewDetails: () => void;
 }
 
 function ReelCardBase({
   phrase,
-  isSaved,
-  onToggleSave,
+  phraseState,
   isPlaying,
   isSlow,
   onPlayNative,
   onPlaySlow,
+  onHide,
+  onReport,
+  onCopy,
+  onViewDetails,
 }: ReelCardProps) {
   const handleShare = useCallback(() => {
     if (typeof navigator !== "undefined" && navigator.share) {
@@ -60,6 +67,7 @@ function ReelCardBase({
             phonetic={phrase.phonetic}
             context={phrase.context}
             category={phrase.category}
+            phraseState={phraseState}
           />
           <TagPills tags={phrase.tags} />
           <SwipeHints />
@@ -71,22 +79,25 @@ function ReelCardBase({
           />
         </div>
 
-        {/* Right action rail */}
+        {/* Right action rail — pushed up so the heart sits above the SwipeHints row */}
         <div
           style={{
             display: "flex",
             flexDirection: "column",
             justifyContent: "flex-end",
-            paddingBottom: 12,
-            paddingRight: 14,
+            paddingBottom: 120,
+            paddingRight: 12,
+            gap: 20,
             flexShrink: 0,
           }}
         >
           <ActionRail
             likes={phrase.likes}
-            isSaved={isSaved}
-            onToggleSave={onToggleSave}
             onShare={handleShare}
+            onHide={onHide}
+            onReport={onReport}
+            onCopy={onCopy}
+            onViewDetails={onViewDetails}
           />
         </div>
       </div>

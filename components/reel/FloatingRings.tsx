@@ -27,7 +27,7 @@ export function FloatingRings() {
           left: "50%",
           transform: "translateX(-20%)",
           borderRadius: "50%",
-          border: "1px solid var(--reel-ring)",
+          border: "1px solid rgba(180, 220, 80, 0.15)",
           animation: "reel-ring-pulse 6s ease-in-out infinite",
         }}
       />
@@ -42,7 +42,7 @@ export function FloatingRings() {
           left: "50%",
           transform: "translateX(-20%)",
           borderRadius: "50%",
-          border: "1px solid var(--reel-ring)",
+          border: "1px solid rgba(180, 220, 80, 0.15)",
           opacity: 0.6,
         }}
       />
@@ -57,7 +57,7 @@ export function FloatingRings() {
           left: "52%",
           transform: "translateX(-25%)",
           borderRadius: "50%",
-          background: "radial-gradient(circle, var(--reel-accent-muted) 0%, transparent 70%)",
+          background: "radial-gradient(circle, rgba(180, 220, 80, 0.08) 0%, transparent 70%)",
           animation: "reel-glow-pulse 8s ease-in-out infinite 1s",
         }}
       />

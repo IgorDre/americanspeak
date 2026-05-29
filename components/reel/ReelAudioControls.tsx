@@ -42,7 +42,7 @@ export function ReelAudioControls({
       style={{
         display: "flex",
         alignItems: "center",
-        gap: "10px",
+        gap: "8px",
         flexWrap: "nowrap", // ← never wrap
         width: "100%",
         minWidth: 0,
@@ -117,8 +117,8 @@ export function ReelAudioControls({
         Slow
       </motion.button>
 
-      {/* Waveform fills remaining space, clips gracefully */}
-      <div style={{ flex: 1, overflow: "hidden", minWidth: 0 }}>
+      {/* Waveform takes ALL remaining space */}
+      <div style={{ flex: "1 1 0%", minWidth: 0, width: "100%", overflow: "hidden" }}>
         <WaveformVisualizer isPlaying={isPlaying} />
       </div>
     </div>

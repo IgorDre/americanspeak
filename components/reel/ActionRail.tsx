@@ -1,12 +1,15 @@
 "use client";
 
 import { useState } from "react";
+import { MoreMenu } from "./MoreMenu";
 
 interface ActionRailProps {
   likes: number;
-  isSaved: boolean;
-  onToggleSave: () => void;
   onShare?: () => void;
+  onHide: () => void;
+  onReport: () => void;
+  onCopy: () => void;
+  onViewDetails: () => void;
 }
 
 function formatCount(n: number): string {
@@ -16,7 +19,7 @@ function formatCount(n: number): string {
 interface GlassButtonProps {
   children: React.ReactNode;
   label?: string;
-  glowing?: boolean;
+  active?: boolean;
   ariaLabel: string;
   ariaPressed?: boolean;
   onActivate?: () => void;
@@ -25,7 +28,7 @@ interface GlassButtonProps {
 function GlassButton({
   children,
   label,
-  glowing,
+  active,
   ariaLabel,
   ariaPressed,
   onActivate,
@@ -46,8 +49,8 @@ function GlassButton({
           width: 46,
           height: 46,
           borderRadius: "50%",
-          background: glowing ? "var(--reel-accent)" : "var(--reel-glass-bg)",
-          border: `1px solid ${glowing ? "var(--reel-accent)" : "var(--reel-glass-border)"}`,
+          background: active ? "rgba(245,166,35,0.08)" : "var(--reel-glass-bg)",
+          border: `1px solid ${active ? "rgba(245,166,35,0.45)" : "var(--reel-glass-border)"}`,
           backdropFilter: "blur(16px)",
           WebkitBackdropFilter: "blur(16px)",
           display: "flex",
@@ -55,8 +58,7 @@ function GlassButton({
           justifyContent: "center",
           cursor: "pointer",
           touchAction: "manipulation",
-          boxShadow: glowing ? "0 0 20px var(--reel-accent-glow)" : "none",
-          color: glowing ? "var(--reel-bg)" : "var(--reel-text)",
+          color: active ? "var(--accent)" : "rgba(255,255,255,0.55)",
         }}
       >
         {children}
@@ -68,9 +70,17 @@ function GlassButton({
   );
 }
 
-export function ActionRail({ likes, isSaved, onToggleSave, onShare }: ActionRailProps) {
+export function ActionRail({
+  likes,
+  onShare,
+  onHide,
+  onReport,
+  onCopy,
+  onViewDetails,
+}: ActionRailProps) {
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(likes);
+  const [moreOpen, setMoreOpen] = useState(false);
 
   const handleLike = () => {
     setLiked((prev) => {
@@ -81,37 +91,10 @@ export function ActionRail({ likes, isSaved, onToggleSave, onShare }: ActionRail
 
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 18 }}>
-      {/* Search */}
-      <GlassButton ariaLabel="Search phrases">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-          <circle cx="11" cy="11" r="8" />
-          <path d="M21 21l-4.35-4.35" />
-        </svg>
-      </GlassButton>
-
-      {/* Save */}
-      <GlassButton
-        label="Saved"
-        glowing={isSaved}
-        ariaLabel={isSaved ? "Remove from saved" : "Save phrase"}
-        ariaPressed={isSaved}
-        onActivate={onToggleSave}
-      >
-        <svg
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill={isSaved ? "currentColor" : "none"}
-          stroke="currentColor"
-          strokeWidth="2.5"
-        >
-          <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z" />
-        </svg>
-      </GlassButton>
-
       {/* Like */}
       <GlassButton
         label={formatCount(likeCount)}
+        active={liked}
         ariaLabel={liked ? "Unlike" : "Like"}
         ariaPressed={liked}
         onActivate={handleLike}
@@ -120,8 +103,8 @@ export function ActionRail({ likes, isSaved, onToggleSave, onShare }: ActionRail
           width="18"
           height="18"
           viewBox="0 0 24 24"
-          fill={liked ? "var(--reel-accent)" : "none"}
-          stroke={liked ? "var(--reel-accent)" : "currentColor"}
+          fill={liked ? "currentColor" : "none"}
+          stroke="currentColor"
           strokeWidth="2.5"
         >
           <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
@@ -139,14 +122,29 @@ export function ActionRail({ likes, isSaved, onToggleSave, onShare }: ActionRail
         </svg>
       </GlassButton>
 
-      {/* More */}
-      <GlassButton label="More" ariaLabel="More options">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-          <circle cx="12" cy="5" r="1.6" />
-          <circle cx="12" cy="12" r="1.6" />
-          <circle cx="12" cy="19" r="1.6" />
-        </svg>
-      </GlassButton>
+      {/* More — dropdown anchors to this button */}
+      <div style={{ position: "relative" }}>
+        <GlassButton
+          label="More"
+          ariaLabel="More options"
+          ariaPressed={moreOpen}
+          onActivate={() => setMoreOpen((v) => !v)}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <circle cx="12" cy="5" r="1.6" />
+            <circle cx="12" cy="12" r="1.6" />
+            <circle cx="12" cy="19" r="1.6" />
+          </svg>
+        </GlassButton>
+        <MoreMenu
+          isOpen={moreOpen}
+          onClose={() => setMoreOpen(false)}
+          onHide={onHide}
+          onReport={onReport}
+          onCopy={onCopy}
+          onViewDetails={onViewDetails}
+        />
+      </div>
     </div>
   );
 }

@@ -1,11 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useMemo } from "react";
+import { motion } from "framer-motion";
 import { MOCK_PHRASES } from "@/data";
 import { useReelFeed } from "@/hooks/useReelFeed";
 import { useAudio } from "@/lib/useAudio";
-import { useSavedPhrases } from "@/hooks/useSavedPhrases";
-import { useStats } from "@/hooks/useStats";
+import { usePhraseStates } from "@/lib/usePhraseStates";
+import { useStreak } from "@/lib/useStreak";
 import { reelThemeVars } from "@/lib/reelTheme";
 import { toReelPhrase } from "@/lib/reelPhrase";
 import { BottomNavigation } from "@/components/layout";
@@ -13,21 +14,31 @@ import { BOTTOM_NAV_HEIGHT } from "@/components/layout/ScreenContainer";
 import { ReelCard } from "./ReelCard";
 import { LiveFeedBadge } from "./LiveFeedBadge";
 import { PeekNextStrip } from "./PeekNextStrip";
-import { ProgressIndicator } from "./ProgressIndicator";
 
 export function ReelFeed() {
-  const phrases = useMemo(() => MOCK_PHRASES.map(toReelPhrase), []);
+  const allPhrases = useMemo(() => MOCK_PHRASES.map(toReelPhrase), []);
   const { playWithSpeech, isPlaying, isSlow } = useAudio();
+
+  const phraseStates = usePhraseStates();
+  const { isVisibleInFeed, getState, hide } = phraseStates;
+  const { streak } = useStreak();
+
+  // Only phrases that should currently appear in the Discover feed. Falls back
+  // to the full list if everything is filtered out, so the feed never empties.
+  const visiblePhrases = useMemo(() => {
+    const filtered = allPhrases.filter((p) => isVisibleInFeed(p.id));
+    return filtered.length > 0 ? filtered : allPhrases;
+  }, [allPhrases, isVisibleInFeed]);
 
   // Speak the phrase the user just landed on. Fired by useReelFeed right after
   // the swipe/wheel/key transition completes — i.e. following a user gesture,
   // which is what browsers require to allow SpeechSynthesis.
   const handleIndexChange = useCallback(
     (i: number) => {
-      const phrase = phrases[i];
+      const phrase = visiblePhrases[i];
       if (phrase) playWithSpeech(phrase.text, false);
     },
-    [phrases, playWithSpeech],
+    [visiblePhrases, playWithSpeech],
   );
 
   const {
@@ -40,19 +51,12 @@ export function ReelFeed() {
     onPointerDown,
     onPointerMove,
     onPointerUp,
-  } = useReelFeed(phrases.length, handleIndexChange);
+  } = useReelFeed(visiblePhrases.length, handleIndexChange);
 
-  const saved = useSavedPhrases();
-  const { stats } = useStats();
-  const streakCount = stats.streak;
-
-  const current = phrases[index];
-  const next = phrases[index + 1];
-  const currentSaved = saved.isSaved(current.id);
-
-  const handleToggleSave = useCallback(() => {
-    saved.toggle(current.id);
-  }, [saved, current.id]);
+  // Clamp the index defensively — the visible list can shrink after an action.
+  const safeIndex = Math.min(index, visiblePhrases.length - 1);
+  const current = visiblePhrases[safeIndex];
+  const next = visiblePhrases[safeIndex + 1];
 
   const handlePlayNative = useCallback(() => {
     playWithSpeech(current.text, false);
@@ -61,6 +65,26 @@ export function ReelFeed() {
   const handlePlaySlow = useCallback(() => {
     playWithSpeech(current.text, true);
   }, [playWithSpeech, current.text]);
+
+  // ── More-menu actions ──
+  const handleHide = useCallback(() => {
+    hide(current.id);
+    goNext();
+  }, [hide, current.id, goNext]);
+
+  const handleCopy = useCallback(() => {
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      navigator.clipboard.writeText(current.text).catch(() => {});
+    }
+  }, [current.text]);
+
+  const handleReport = useCallback(() => {
+    // Placeholder — flagging is not yet wired to a backend.
+  }, []);
+
+  const handleViewDetails = useCallback(() => {
+    // Placeholder — detail view is not yet implemented.
+  }, []);
 
   // Desktop keyboard navigation
   useEffect(() => {
@@ -119,27 +143,66 @@ export function ReelFeed() {
         >
           <LiveFeedBadge />
 
-          {/* Streak counter — restore pointer events just on this element */}
-          <div
+          {/* Streak counter — nav-icon style, restore pointer events just here */}
+          <motion.div
             style={{
               pointerEvents: "auto",
               display: "flex",
+              flexDirection: "column",
               alignItems: "center",
-              gap: "5px",
-              padding: "6px 14px",
-              borderRadius: 999,
-              background: "var(--reel-glass-bg)",
-              border: "1px solid var(--reel-glass-border)",
-              backdropFilter: "blur(12px)",
-              WebkitBackdropFilter: "blur(12px)",
+              gap: "2px",
+              padding: "6px 10px",
+              borderRadius: "14px",
+              background: "rgba(255,255,255,0.04)",
+              border: "1px solid rgba(255,255,255,0.08)",
             }}
           >
-            <span style={{ fontSize: "15px" }}>🔥</span>
-            <span style={{ fontSize: "13px", fontWeight: 700, color: "var(--reel-accent)" }}>
-              {streakCount}
+            <motion.span
+              animate={{ scale: streak > 0 ? [1, 1.2, 1] : 1 }}
+              transition={{ duration: 0.4 }}
+              style={{ fontSize: "18px", lineHeight: 1 }}
+            >
+              🔥
+            </motion.span>
+            <span
+              style={{
+                fontSize: "11px",
+                fontWeight: 700,
+                color: "var(--accent)",
+                lineHeight: 1,
+                minWidth: "12px",
+                textAlign: "center",
+              }}
+            >
+              {streak}
+            </span>
+          </motion.div>
+        </div>
+
+        {/* Prev hint — appears above the card once the user has scrolled past the first */}
+        {index > 0 && (
+          <div
+            style={{
+              position: "absolute",
+              top: "calc(env(safe-area-inset-top) + 48px)",
+              left: "50%",
+              transform: "translateX(-50%)",
+              zIndex: 20,
+              pointerEvents: "none",
+            }}
+          >
+            <span
+              style={{
+                fontSize: "11px",
+                color: "rgba(255,255,255,0.28)",
+                fontWeight: 500,
+                letterSpacing: "0.05em",
+              }}
+            >
+              ∧ prev
             </span>
           </div>
-        </div>
+        )}
 
         {/* Card viewport */}
         <div style={{ position: "relative", flex: 1, overflow: "hidden" }}>
@@ -158,16 +221,17 @@ export function ReelFeed() {
             <ReelCard
               key={current.id}
               phrase={current}
-              isSaved={currentSaved}
-              onToggleSave={handleToggleSave}
+              phraseState={getState(current.id)}
               isPlaying={isPlaying}
               isSlow={isSlow}
               onPlayNative={handlePlayNative}
               onPlaySlow={handlePlaySlow}
+              onHide={handleHide}
+              onReport={handleReport}
+              onCopy={handleCopy}
+              onViewDetails={handleViewDetails}
             />
           </div>
-
-          <ProgressIndicator current={index} total={phrases.length} />
         </div>
 
         {/* Peek-next strip */}

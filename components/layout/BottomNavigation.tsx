@@ -2,9 +2,10 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import { usePhraseStates } from "@/lib/usePhraseStates";
 
-const ACCENT = "#f5a623";
-const INACTIVE_ICON = "rgba(255,255,255,0.38)";
+const ACCENT = "var(--accent)";
+const INACTIVE_ICON = "rgba(255,255,255,0.32)";
 const INACTIVE_LABEL = "rgba(255,255,255,0.35)";
 
 const tabs = [
@@ -17,14 +18,14 @@ const tabs = [
         width="24"
         height="24"
         viewBox="0 0 24 24"
-        fill={active ? ACCENT : "none"}
+        fill="none"
         stroke={active ? ACCENT : INACTIVE_ICON}
         strokeWidth="1.8"
         strokeLinecap="round"
         strokeLinejoin="round"
       >
-        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
-        <polyline points="9 22 9 12 15 12 15 22" />
+        <path d="M3 10.5L12 3l9 7.5V20a1 1 0 01-1 1H5a1 1 0 01-1-1V10.5z" />
+        <path d="M9 21V12h6v9" />
       </svg>
     ),
   },
@@ -50,40 +51,22 @@ const tabs = [
     ),
   },
   {
-    id: "practice",
-    label: "Practice",
-    path: "/practice",
-    Icon: ({ active }: { active: boolean }) => (
-      <svg
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill={active ? ACCENT : "none"}
-        stroke={active ? ACCENT : INACTIVE_ICON}
-        strokeWidth="1.8"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-      </svg>
-    ),
-  },
-  {
-    id: "saved",
-    label: "Saved",
+    id: "learning",
+    label: "Learning",
     path: "/saved",
     Icon: ({ active }: { active: boolean }) => (
       <svg
         width="24"
         height="24"
         viewBox="0 0 24 24"
-        fill={active ? ACCENT : "none"}
+        fill="none"
         stroke={active ? ACCENT : INACTIVE_ICON}
         strokeWidth="1.8"
         strokeLinecap="round"
         strokeLinejoin="round"
       >
-        <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z" />
+        <path d="M4 19.5A2.5 2.5 0 016.5 17H20" />
+        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z" />
       </svg>
     ),
   },
@@ -111,6 +94,10 @@ const tabs = [
 export function BottomNavigation() {
   const pathname = usePathname();
   const router = useRouter();
+  const { states } = usePhraseStates();
+  const learningCount = Object.values(states).filter(
+    (s) => s.status === "learning",
+  ).length;
 
   return (
     <nav
@@ -159,7 +146,32 @@ export function BottomNavigation() {
               touchAction: "manipulation",
             }}
           >
-            <tab.Icon active={active} />
+            <div style={{ position: "relative", display: "flex" }}>
+              <tab.Icon active={active} />
+              {tab.id === "learning" && learningCount > 0 && (
+                <div
+                  style={{
+                    position: "absolute",
+                    top: -2,
+                    right: -2,
+                    minWidth: 16,
+                    height: 16,
+                    paddingInline: 3,
+                    boxSizing: "border-box",
+                    borderRadius: "50%",
+                    background: "var(--accent)",
+                    fontSize: "9px",
+                    fontWeight: 700,
+                    color: "#000",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  {learningCount > 99 ? "99+" : learningCount}
+                </div>
+              )}
+            </div>
             <span
               style={{
                 fontSize: "10px",
@@ -170,6 +182,17 @@ export function BottomNavigation() {
             >
               {tab.label}
             </span>
+            {active && (
+              <div
+                style={{
+                  width: 4,
+                  height: 4,
+                  borderRadius: "50%",
+                  background: "var(--accent)",
+                  marginTop: 2,
+                }}
+              />
+            )}
           </motion.button>
         );
       })}

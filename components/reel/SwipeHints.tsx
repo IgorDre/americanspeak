@@ -1,78 +1,75 @@
-"use client";
+'use client';
+import { motion } from 'framer-motion';
 
-import { motion } from "framer-motion";
+const DURATION = 2.0;
 
-function ChevronGroup({ direction, label }: { direction: "left" | "right"; label: string }) {
-  const isLeft = direction === "left";
-
-  // Cascade direction:
-  // save (left): animation flows right→left  (rightmost chevron lights first)
-  // skip (right): animation flows left→right (leftmost chevron lights first)
-  const delays = isLeft ? [0.28, 0.14, 0] : [0, 0.14, 0.28];
-
+function Char({ char, delay }: { char: string; delay: number }) {
   return (
-    <div
+    <motion.span
+      animate={{ opacity: [0.1, 1, 0.1] }}
+      transition={{ duration: DURATION, repeat: Infinity, delay, ease: 'easeInOut' }}
       style={{
-        display: "flex",
-        alignItems: "center",
-        gap: "3px",
-        flexDirection: isLeft ? "row" : "row-reverse",
+        color: 'var(--ring-text)',
+        fontSize: '12px',
+        fontWeight: 600,
+        lineHeight: 1,
+        display: 'inline-block',
       }}
     >
-      {/* Three chevrons */}
-      <div style={{ display: "flex", gap: "1px" }}>
-        {[0, 1, 2].map((i) => (
-          <motion.span
-            key={i}
-            animate={{ opacity: [0.15, 1, 0.15] }}
-            transition={{
-              duration: 1.4,
-              repeat: Infinity,
-              delay: delays[i],
-              ease: "easeInOut",
-            }}
-            style={{
-              fontSize: "12px",
-              color: "var(--reel-accent)",
-              lineHeight: 1,
-              display: "block",
-            }}
-          >
-            {isLeft ? "‹" : "›"}
-          </motion.span>
-        ))}
-      </div>
-
-      {/* Label */}
-      <span
-        style={{
-          fontSize: "11px",
-          fontWeight: 600,
-          color: "var(--reel-accent)",
-          opacity: 0.65,
-          marginLeft: isLeft ? "4px" : 0,
-          marginRight: isLeft ? 0 : "4px",
-        }}
-      >
-        {label}
-      </span>
-    </div>
+      {char}
+    </motion.span>
   );
 }
 
 export function SwipeHints() {
+  // ‹‹‹ skip — wave RIGHT→LEFT: p fires first (d=0), leftmost ‹ fires last (d=0.66)
+  const skipItems = [
+    { c: '‹', d: 0.66 }, // leftmost
+    { c: '‹', d: 0.55 }, // middle
+    { c: '‹', d: 0.44 }, // rightmost (adjacent to word)
+    { c: ' ', d: 0 },
+    { c: 's', d: 0.33 },
+    { c: 'k', d: 0.22 },
+    { c: 'i', d: 0.11 },
+    { c: 'p', d: 0.00 }, // rightmost char — fires first
+  ];
+
+  // learn ››› — wave LEFT→RIGHT: l fires first (d=0), rightmost › fires last (d=0.77)
+  const learnItems = [
+    { c: 'l', d: 0.00 }, // leftmost char — fires first
+    { c: 'e', d: 0.11 },
+    { c: 'a', d: 0.22 },
+    { c: 'r', d: 0.33 },
+    { c: 'n', d: 0.44 },
+    { c: ' ', d: 0 },
+    { c: '›', d: 0.55 }, // leftmost chevron (adjacent to word)
+    { c: '›', d: 0.66 }, // middle
+    { c: '›', d: 0.77 }, // rightmost — fires last
+  ];
+
   return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        width: "100%",
-        padding: "0 2px",
-      }}
-    >
-      <ChevronGroup direction="left" label="save" />
-      <ChevronGroup direction="right" label="skip" />
+    <div style={{
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      width: '100%',
+      padding: '0 2px',
+      userSelect: 'none',
+    }}>
+      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '1px' }}>
+        {skipItems.map((item, i) =>
+          item.c === ' '
+            ? <span key={i} style={{ width: '4px' }} />
+            : <Char key={i} char={item.c} delay={item.d} />
+        )}
+      </span>
+      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '1px' }}>
+        {learnItems.map((item, i) =>
+          item.c === ' '
+            ? <span key={i} style={{ width: '4px' }} />
+            : <Char key={i} char={item.c} delay={item.d} />
+        )}
+      </span>
     </div>
   );
 }

@@ -3,7 +3,19 @@
 :root {
   --background: #0a0a0a;
   --foreground: #f5f5f5;
+
+  /* Interaction/selection accent (amber) */
+  --accent: #f5a623;
+
+  /* Ambient/atmospheric ring-green — muted yellow-green from the mockup */
+  --ring: rgba(180, 220, 80, 0.55); /* the muted yellow-green used in mockup */
+  --ring-dim: rgba(180, 220, 80, 0.18); /* very faint version for backgrounds */
+  --ring-text: rgb(180, 220, 80); /* solid version for text/icons */
 }
+
+/* --font-display (Playfair Display) and --font-body (DM Sans) are provided by
+   next/font on the <html> element (see app/layout.tsx), which includes proper
+   self-hosted fallbacks. Do not re-declare them here or the loaded font won't apply. */
 
 @theme inline {
   --color-background: var(--background);
