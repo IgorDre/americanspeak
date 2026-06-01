@@ -57,26 +57,34 @@ function ReelCardBase({
             flexDirection: "column",
             justifyContent: "flex-end",
             gap: 18,
-            padding: "16px 20px 12px",
+            padding: "16px 0 12px",
             minWidth: 0,
           }}
         >
-          <PhraseTypography
-            text={phrase.text}
-            accentWord={phrase.accentWord}
-            phonetic={phrase.phonetic}
-            context={phrase.context}
-            category={phrase.category}
-            phraseState={phraseState}
-          />
-          <TagPills tags={phrase.tags} />
-          <SwipeHints />
-          <ReelAudioControls
-            onPlayNative={onPlayNative}
-            onPlaySlow={onPlaySlow}
-            isPlaying={isPlaying}
-            isSlow={isSlow}
-          />
+          <div style={{ paddingLeft: "20px", paddingRight: "20px" }}>
+            <PhraseTypography
+              text={phrase.text}
+              accentWord={phrase.accentWord}
+              phonetic={phrase.phonetic}
+              context={phrase.context}
+              category={phrase.category}
+              phraseState={phraseState}
+            />
+          </div>
+          <div style={{ paddingLeft: "20px", paddingRight: "20px" }}>
+            <TagPills tags={phrase.tags} />
+          </div>
+          <div style={{ width: "100%", paddingLeft: "20px", paddingRight: "20px" }}>
+            <SwipeHints />
+          </div>
+          <div style={{ width: "100%", paddingLeft: "20px", paddingRight: "20px" }}>
+            <ReelAudioControls
+              onPlayNative={onPlayNative}
+              onPlaySlow={onPlaySlow}
+              isPlaying={isPlaying}
+              isSlow={isSlow}
+            />
+          </div>
         </div>
 
         {/* Right action rail — pushed up so the heart sits above the SwipeHints row */}

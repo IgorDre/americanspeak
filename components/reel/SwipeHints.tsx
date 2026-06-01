@@ -53,7 +53,8 @@ export function SwipeHints() {
       justifyContent: 'space-between',
       alignItems: 'center',
       width: '100%',
-      padding: '0 2px',
+      padding: '0',
+      margin: '0',
       userSelect: 'none',
     }}>
       <span style={{ display: 'inline-flex', alignItems: 'center', gap: '1px' }}>

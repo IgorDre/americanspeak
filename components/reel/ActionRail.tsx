@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { MoreMenu } from "./MoreMenu";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface ActionRailProps {
   likes: number;
@@ -122,28 +122,182 @@ export function ActionRail({
         </svg>
       </GlassButton>
 
-      {/* More — dropdown anchors to this button */}
+      {/* More — morphs upward from button bottom edge */}
       <div style={{ position: "relative" }}>
-        <GlassButton
-          label="More"
-          ariaLabel="More options"
-          ariaPressed={moreOpen}
-          onActivate={() => setMoreOpen((v) => !v)}
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-            <circle cx="12" cy="5" r="1.6" />
-            <circle cx="12" cy="12" r="1.6" />
-            <circle cx="12" cy="19" r="1.6" />
-          </svg>
-        </GlassButton>
-        <MoreMenu
-          isOpen={moreOpen}
-          onClose={() => setMoreOpen(false)}
-          onHide={onHide}
-          onReport={onReport}
-          onCopy={onCopy}
-          onViewDetails={onViewDetails}
-        />
+        {moreOpen && (
+          <div
+            style={{ position: "fixed", inset: 0, zIndex: 49 }}
+            onPointerUp={(e) => {
+              e.stopPropagation();
+              setMoreOpen(false);
+            }}
+          />
+        )}
+
+        <AnimatePresence mode="wait">
+          {!moreOpen ? (
+            <motion.button
+              key="more-closed"
+              type="button"
+              layoutId="more-surface"
+              onPointerDown={(e) => e.stopPropagation()}
+              onPointerUp={(e) => {
+                e.stopPropagation();
+                setMoreOpen(true);
+              }}
+              aria-label="More options"
+              style={{
+                width: 48,
+                height: 48,
+                borderRadius: "50%",
+                background: "var(--reel-glass-bg)",
+                border: "1px solid var(--reel-glass-border)",
+                backdropFilter: "blur(16px)",
+                WebkitBackdropFilter: "blur(16px)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
+                color: "rgba(255,255,255,0.55)",
+                fontSize: "18px",
+                touchAction: "manipulation",
+                position: "relative",
+                zIndex: 50,
+              }}
+            >
+              ···
+            </motion.button>
+          ) : (
+            <motion.div
+              key="more-open"
+              layoutId="more-surface"
+              style={{
+                position: "absolute",
+                bottom: 0,
+                right: 0,
+                width: 204,
+                borderRadius: "16px",
+                background: "rgba(14,14,14,0.97)",
+                border: "1px solid rgba(255,255,255,0.1)",
+                backdropFilter: "blur(24px)",
+                WebkitBackdropFilter: "blur(24px)",
+                boxShadow: "0 -8px 40px rgba(0,0,0,0.6)",
+                overflow: "hidden",
+                zIndex: 50,
+                transformOrigin: "bottom right",
+              }}
+              onPointerDown={(e) => e.stopPropagation()}
+            >
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.15, duration: 0.18 }}
+              >
+                {[
+                  { label: "Hide", sublabel: "Never show this phrase", icon: "⊘", action: onHide },
+                  { label: "Report", sublabel: "Flag an error", icon: "⚑", action: onReport },
+                  { label: "Copy phrase", sublabel: null, icon: "⎘", action: onCopy },
+                  { label: "View details", sublabel: null, icon: "↗", action: onViewDetails },
+                ].map((item, i, arr) => (
+                  <motion.button
+                    key={item.label}
+                    type="button"
+                    onPointerDown={(e) => e.stopPropagation()}
+                    onPointerUp={(e) => {
+                      e.stopPropagation();
+                      item.action();
+                      setMoreOpen(false);
+                    }}
+                    whileTap={{ background: "rgba(255,255,255,0.07)" }}
+                    style={{
+                      width: "100%",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "12px",
+                      padding: "12px 16px",
+                      background: "none",
+                      border: "none",
+                      borderBottom:
+                        i < arr.length - 1 ? "1px solid rgba(255,255,255,0.05)" : "none",
+                      cursor: "pointer",
+                      touchAction: "manipulation",
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontSize: "15px",
+                        opacity: 0.45,
+                        width: "20px",
+                        textAlign: "center",
+                        flexShrink: 0,
+                      }}
+                    >
+                      {item.icon}
+                    </span>
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "1px",
+                        textAlign: "left",
+                      }}
+                    >
+                      <span
+                        style={{
+                          fontSize: "14px",
+                          fontWeight: 600,
+                          color: "rgba(255,255,255,0.88)",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {item.label}
+                      </span>
+                      {item.sublabel && (
+                        <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.3)" }}>
+                          {item.sublabel}
+                        </span>
+                      )}
+                    </div>
+                  </motion.button>
+                ))}
+              </motion.div>
+
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  padding: "6px 10px 8px",
+                  borderTop: "1px solid rgba(255,255,255,0.06)",
+                }}
+              >
+                <motion.button
+                  type="button"
+                  onPointerDown={(e) => e.stopPropagation()}
+                  onPointerUp={(e) => {
+                    e.stopPropagation();
+                    setMoreOpen(false);
+                  }}
+                  style={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: "50%",
+                    background: "rgba(255,255,255,0.06)",
+                    border: "1px solid rgba(255,255,255,0.1)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                    color: "rgba(255,255,255,0.4)",
+                    fontSize: "16px",
+                    touchAction: "manipulation",
+                  }}
+                >
+                  ···
+                </motion.button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );

@@ -42,9 +42,8 @@ export function ReelAudioControls({
       style={{
         display: "flex",
         alignItems: "center",
-        gap: "8px",
-        flexWrap: "nowrap", // ← never wrap
         width: "100%",
+        gap: "8px",
         minWidth: 0,
       }}
     >
@@ -117,9 +116,8 @@ export function ReelAudioControls({
         Slow
       </motion.button>
 
-      {/* Waveform takes ALL remaining space */}
-      <div style={{ flex: "1 1 0%", minWidth: 0, width: "100%", overflow: "hidden" }}>
-        <WaveformVisualizer isPlaying={isPlaying} />
+      <div style={{ flex: "1 1 0%", minWidth: 0, overflow: "hidden" }}>
+        <WaveformVisualizer isPlaying={isPlaying} isSlow={isSlow} />
       </div>
     </div>
   );
